@@ -13,15 +13,9 @@ export var TIntervals   = {"1M":"day", "3M":"day", "6M":"day", "1Y":"week", "2Y"
 export var TFormat      = {"day":"%d %b '%y", "week":"%d %b '%y", "month":"%b '%y" };
 export var genRaw, genData;
 
-(function() {
-    d3.csv(stockdata, genType).then(function(data) {
-      genRaw         = data;
-      mainjs();
-    });
-}());
-
 function toSlice(data) { return data.slice(-TDays[TPeriod]); }
 
+// https://medium.com/@anilnairxyz/candlestick-chart-using-d3-a7f978578cd7
 function mainjs() {
   var toPress    = function() { genData = (TIntervals[TPeriod]!="day")?dataCompress(toSlice(genRaw), TIntervals[TPeriod]):toSlice(genRaw); };
   toPress(); displayAll();
@@ -31,6 +25,13 @@ function mainjs() {
   d3.select("#oneY").on("click",   function(){ TPeriod  = "1Y"; toPress(); displayAll(); });
   d3.select("#twoY").on("click",   function(){ TPeriod  = "2Y"; toPress(); displayAll(); });
   d3.select("#fourY").on("click",  function(){ TPeriod  = "4Y"; toPress(); displayAll(); });
+}
+
+export function drawCsMain() {
+  d3.csv(stockdata, genType).then(function (data) {
+    genRaw = data;
+    mainjs();
+  });
 }
 
 function displayAll() {

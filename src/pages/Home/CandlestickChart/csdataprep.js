@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 
-var parseDate    = d3.timeFormat("%Y-%m-%d");
+var parseDate    = d3.timeParse('%Y-%m-%d');
 
 export function genType(d) {
   d.TIMESTAMP  = parseDate(d.TIMESTAMP);
