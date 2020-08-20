@@ -1,5 +1,7 @@
-import React from 'react'
+import React from 'react';
 
-const Home = () => <div>Home</div>
+import CandlestickChart from './CandlestickChart';
 
-export default Home
+const Home = () => <CandlestickChart />;
+
+export default Home;

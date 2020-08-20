@@ -42,6 +42,18 @@ module.exports = {
         ],
       },
       {
+        test: /\.(csv)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[hash].[ext]',
+              outputPath: 'dist/assets',
+            },
+          },
+        ],
+      },
+      {
         test: /\.(sa|sc|c)ss$/,
         use: [
           {
