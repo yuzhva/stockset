@@ -43,8 +43,8 @@ function hoverAll() {
     });
 }
 
-function displayCS() {
-  const chart = cschart(genData).Bheight(460);
+function displayCS(smaValues) {
+  const chart = cschart(genData, smaValues).Bheight(460);
   d3.select('#chart1').call(chart);
   // var chart       = barchart().mname("volume").margin(320).MValue("TURNOVER");
   // d3.select("#chart1").datum(genData).call(chart);
@@ -53,13 +53,13 @@ function displayCS() {
   hoverAll();
 }
 
-function displayAll() {
-  displayCS();
+function displayAll(smaValues) {
+  displayCS(smaValues);
   displayGen(genData.length - 1);
 }
 
 // https://medium.com/@anilnairxyz/candlestick-chart-using-d3-a7f978578cd7
-export function drawD3Chart(fetchedStockData) {
+export function drawD3Chart(fetchedStockData, smaValues) {
   genData = fetchedStockData;
-  displayAll();
+  displayAll(smaValues);
 }

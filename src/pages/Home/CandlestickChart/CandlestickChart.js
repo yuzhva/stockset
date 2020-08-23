@@ -2,9 +2,9 @@ import React from 'react';
 
 import { drawD3Chart } from './csmain';
 
-const CandlestickChart = ({ fetchedStockData }) => {
+const CandlestickChart = ({ fetchedStockData, smaValues }) => {
   React.useEffect(() => {
-    if (fetchedStockData) drawD3Chart(fetchedStockData);
+    if (fetchedStockData) drawD3Chart(fetchedStockData, smaValues);
   }, [fetchedStockData]);
 
   return (
