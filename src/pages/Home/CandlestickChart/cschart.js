@@ -89,21 +89,24 @@ function cschart(genData, smaValues) {
             .tickSizeOuter(0)
         );
       // .call(yAxis.orient("left").tickFormat("").tickSize(width).outerTickSize(0));
-      const smaLine = d3
-        .line()
-        .defined((d) => Boolean(d.value))
-        .x((d) => x(d.TIMESTAMP))
-        .y((d) => y(d.value));
 
-      svg
-        .append('path')
-        .datum(smaValues)
-        .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
-        .attr('stroke-width', 1.5)
-        .attr('stroke-linejoin', 'round')
-        .attr('stroke-linecap', 'round')
-        .attr('d', smaLine);
+      if (smaValues) {
+        const smaLine = d3
+          .line()
+          .defined((d) => Boolean(d.value))
+          .x((d) => x(d.TIMESTAMP))
+          .y((d) => y(d.value));
+
+        svg
+          .append('path')
+          .datum(smaValues)
+          .attr('fill', 'none')
+          .attr('stroke', 'steelblue')
+          .attr('stroke-width', 1.5)
+          .attr('stroke-linejoin', 'round')
+          .attr('stroke-linecap', 'round')
+          .attr('d', smaLine);
+      }
 
       const bands = svg
         .selectAll('.bands')

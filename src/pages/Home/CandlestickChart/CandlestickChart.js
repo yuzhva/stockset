@@ -5,7 +5,7 @@ import { drawD3Chart } from './csmain';
 const CandlestickChart = ({ fetchedStockData, smaValues }) => {
   React.useEffect(() => {
     if (fetchedStockData) drawD3Chart(fetchedStockData, smaValues);
-  }, [fetchedStockData]);
+  }, [fetchedStockData, smaValues]);
 
   return (
     <div id="demobox">
@@ -20,7 +20,7 @@ const CandlestickChart = ({ fetchedStockData, smaValues }) => {
         <div id="chart1" />
       </div>
     </div>
-  )
+  );
 };
 
 export default CandlestickChart;
