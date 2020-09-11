@@ -2,19 +2,23 @@ import React from 'react';
 import * as d3 from 'd3';
 import { SMA } from 'technicalindicators';
 
+import useCallbackDebounce from 'react-ui-elements/src/hooks/useCallbackDebounce';
+
 import CandlestickChart from './CandlestickChart';
 
 import { createStrategyActions, calculateProfitability } from './strategy';
 import { syncSmaValuesWithStockDate } from './utils';
 
-// import resAsJsonTmp from './resAsJson.json';
+import resAsJsonTmp from './resAsJson.json';
 
 const FORM_API_RELATED_DEFAULT_VALUE = {
-  timeFrame: 'daily',
+  ticker: 'spy',
+  timeFrame: '4hour',
 };
 
 const FORM_CHART_RELATED_DEFAULT_VALUE = {
-  period: '36',
+  ticker: FORM_API_RELATED_DEFAULT_VALUE.ticker,
+  period: '12',
 };
 
 const SMA_PERIOD_MIN = 8;
@@ -96,21 +100,21 @@ const Home = () => {
     const apiEndPoint = API_ENDPOINT_BY_TIME_FRAME[
       inputApiRelatedValue.timeFrame
     ]
-      .replace('%ticker%', 'xom')
+      .replace('%ticker%', inputApiRelatedValue.ticker)
       .replace('%startDate%', fetchDataStartDate.slice(0, 10))
       .replace('%timeFrame%', inputApiRelatedValue.timeFrame)
       .replace('%tiingoToken%', process.env.TIINGO_TOKEN);
 
-    fetch(apiEndPoint)
-      .then((res) => res.json())
-      .then((resAsJson) => {
-        // console.warn('resAsJson', resAsJson);
-        const nextStockData = prepareTiingoData(resAsJson);
-        setStockData(nextStockData);
-      });
-    // const nextStockData = prepareTiingoData(resAsJsonTmp);
-    // setStockData(nextStockData);
-  }, [inputApiRelatedValue.timeFrame]);
+    // fetch(apiEndPoint)
+    //   .then((res) => res.json())
+    //   .then((resAsJson) => {
+    //     console.warn('resAsJson', resAsJson);
+    //     const nextStockData = prepareTiingoData(resAsJson);
+    //     setStockData(nextStockData);
+    //   });
+    const nextStockData = prepareTiingoData(resAsJsonTmp);
+    setStockData(nextStockData);
+  }, [inputApiRelatedValue.ticker, inputApiRelatedValue.timeFrame]);
 
   const handleInputApiRelatedChange = React.useCallback(
     (e) => {
@@ -130,6 +134,28 @@ const Home = () => {
       });
     },
     [inputChartRelatedValue]
+  );
+
+  const dbTickerApiValueChange = useCallbackDebounce(
+    ({ current }) => {
+      const refTickerValue = current[0];
+      handleInputApiRelatedChange({
+        currentTarget: {
+          name: 'ticker',
+          value: refTickerValue,
+        },
+      });
+    },
+    [inputChartRelatedValue.ticker],
+    3000
+  );
+
+  const handleTickerChange = React.useCallback(
+    (e) => {
+      handleInputChartRelatedChange(e);
+      dbTickerApiValueChange();
+    },
+    [inputChartRelatedValue.ticker]
   );
 
   const onBtnCalcSmaClick = React.useCallback(() => {
@@ -212,15 +238,15 @@ const Home = () => {
   return (
     <div>
       <div className="control">
-        <label htmlFor="ticket">
+        <label htmlFor="ticker">
           ticker:
           <input
-            id="ticket"
-            name="ticket"
+            id="ticker"
+            name="ticker"
             type="text"
             maxLength={4}
-            value={inputApiRelatedValue.name}
-            onChange={handleInputApiRelatedChange}
+            value={inputChartRelatedValue.ticker}
+            onChange={handleTickerChange}
           />
         </label>
         <label htmlFor="period">
@@ -258,7 +284,7 @@ const Home = () => {
             <option value="1min">1m</option>
           </select>
         </label>
-        <label htmlFor="ticket">
+        <label htmlFor="sma">
           SMA:
           <input
             id="sma"
