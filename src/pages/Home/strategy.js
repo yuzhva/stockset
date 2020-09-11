@@ -48,6 +48,7 @@ export const calculateProfitability = (actions) => {
     const prevProfitabilityResult = profitability[profitability.length - 1] || {
       actionChangeInPercent: 0,
       totalChangeInPercent: 0,
+      timeStamp: action.TIMESTAMP,
     };
 
     if (isCameOutOfPosition) {
@@ -61,6 +62,7 @@ export const calculateProfitability = (actions) => {
       profitability.push({
         actionChangeInPercent,
         totalChangeInPercent,
+        timeStamp: action.TIMESTAMP,
       });
     } else {
       profitability.push(prevProfitabilityResult);
