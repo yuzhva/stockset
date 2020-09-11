@@ -2,7 +2,15 @@ import * as d3 from 'd3';
 
 import { TFormat, TIntervals, TPeriod } from './csmain';
 
-function cschart(genData) {
+const timeFormatToCompare = d3.timeFormat('%x');
+
+function cschart(
+  calculationsStartDate,
+  genData,
+  smaPeriod,
+  smaValues
+  // actionsProfit
+) {
   const margin = { top: 0, right: 30, bottom: 40, left: 5 };
   const width = 620;
   const height = 300;
@@ -90,6 +98,28 @@ function cschart(genData) {
         );
       // .call(yAxis.orient("left").tickFormat("").tickSize(width).outerTickSize(0));
 
+      if (smaValues) {
+        const smaLine = d3
+          .line()
+          .defined((d) => Boolean(d.value))
+          .x((d) => x(d.TIMESTAMP))
+          .y((d) => y(d.value));
+
+        svg
+          .append('path')
+          .datum(smaValues)
+          .attr('fill', 'none')
+          .attr('stroke', 'steelblue')
+          .attr('stroke-width', 1.5)
+          .attr('stroke-linejoin', 'round')
+          .attr('stroke-linecap', 'round')
+          .attr('d', smaLine);
+      }
+
+      // if (actionsProfit) {
+      // TODO:
+      // }
+
       const bands = svg
         .selectAll('.bands')
         .data([genData])
@@ -113,7 +143,30 @@ function cschart(genData) {
         .attr('class', function (d, i) {
           return `band${i}`;
         })
-        .style('stroke-width', Math.floor(barwidth));
+        .style('stroke-width', Math.floor(barwidth))
+        .classed('uptrend', function (d, stockDataIndex) {
+          const matchingSmaIndex = stockDataIndex - smaPeriod;
+          const isClassNameShouldBeAttached =
+            smaValues && smaValues[matchingSmaIndex];
+
+          if (!isClassNameShouldBeAttached) return null;
+          return d.CLOSE > smaValues[matchingSmaIndex].value;
+        })
+        .classed('downtrend', function (d, stockDataIndex) {
+          const matchingSmaIndex = stockDataIndex - smaPeriod;
+          const isClassNameShouldBeAttached =
+            smaValues && smaValues[matchingSmaIndex];
+
+          if (!isClassNameShouldBeAttached) return null;
+          return d.CLOSE < smaValues[matchingSmaIndex].value;
+        })
+        .classed('period__start', function (d) {
+          // TODO: fix the case when the {calculationsStartDate} is the weekend or does not intersects
+          return (
+            timeFormatToCompare(d3.isoParse(calculationsStartDate)) ===
+            timeFormatToCompare(d.TIMESTAMP)
+          );
+        });
 
       const stick = svg
         .selectAll('.sticks')

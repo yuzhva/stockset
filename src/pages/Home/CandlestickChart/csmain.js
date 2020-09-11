@@ -14,7 +14,7 @@ export const TIntervals = {
   '4Y': 'month',
 };
 export const TFormat = { day: "%d %b '%y", week: "%d %b '%y", month: "%b '%y" };
-export let genData;
+let genData;
 
 function displayGen(mark) {
   const header = csheader();
@@ -43,23 +43,59 @@ function hoverAll() {
     });
 }
 
-function displayCS() {
-  const chart = cschart(genData).Bheight(460);
+function displayCS(
+  calculationsStartDate,
+  fetchedStockData,
+  smaPeriod,
+  smaValues,
+  actionsProfit
+) {
+  const chart = cschart(
+    calculationsStartDate,
+    fetchedStockData,
+    smaPeriod,
+    smaValues,
+    actionsProfit
+  ).Bheight(460);
   d3.select('#chart1').call(chart);
   // var chart       = barchart().mname("volume").margin(320).MValue("TURNOVER");
-  // d3.select("#chart1").datum(genData).call(chart);
+  // d3.select("#chart1").datum(fetchedStockData).call(chart);
   // var chart       = barchart().mname("sigma").margin(400).MValue("VOLATILITY");
-  // d3.select("#chart1").datum(genData).call(chart);
+  // d3.select("#chart1").datum(fetchedStockData).call(chart);
   hoverAll();
 }
 
-function displayAll() {
-  displayCS();
-  displayGen(genData.length - 1);
+function displayAll(
+  calculationsStartDate,
+  fetchedStockData,
+  smaPeriod,
+  smaValues,
+  actionsProfit
+) {
+  displayCS(
+    calculationsStartDate,
+    fetchedStockData,
+    smaPeriod,
+    smaValues,
+    actionsProfit
+  );
+  displayGen(fetchedStockData.length - 1);
 }
 
 // https://medium.com/@anilnairxyz/candlestick-chart-using-d3-a7f978578cd7
-export function drawD3Chart(fetchedStockData) {
+export function drawD3Chart(
+  calculationsStartDate,
+  fetchedStockData,
+  smaPeriod,
+  smaValues,
+  actionsProfit
+) {
   genData = fetchedStockData;
-  displayAll();
+  displayAll(
+    calculationsStartDate,
+    fetchedStockData,
+    smaPeriod,
+    smaValues,
+    actionsProfit
+  );
 }

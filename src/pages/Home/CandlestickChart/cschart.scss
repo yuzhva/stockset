@@ -17,6 +17,10 @@
   font-size: small;
   text-align: center; }
 
+.control {
+  text-align: center;
+}
+
 /* Candlestick Chart
 /* =============================================== */
 #chart1 .grid { stroke-opacity: .3; }
@@ -26,7 +30,10 @@
 #chart1 .axis.yaxis path { fill: none; stroke: #292f3b; }
 
 #chart1 .bands rect { fill: darkgrey; fill-opacity: 0; stroke-opacity: 0; pointer-events: all; shape-rendering: crispEdges; }
-#chart1 .bands .hoved { fill-opacity: .6; }
+#chart1 .bands .hoved { fill: darkgrey !important; fill-opacity: .6; }
+#chart1 .bands .downtrend { fill: transparentize(crimson, 0.75); fill-opacity: .6; }
+#chart1 .bands .uptrend { fill: transparentize(green, 0.75); fill-opacity: .6; }
+#chart1 .bands .period__start { fill: crimson ; fill-opacity: .6; }
 #chart1 .sticks rect { pointer-events: none; shape-rendering: crispEdges; }
 #chart1 .sticks .rise, #chart1 .candles .rise { fill: lightgrey; }
 #chart1 .sticks .fall, #chart1 .candles .fall { fill: turquoise; }
