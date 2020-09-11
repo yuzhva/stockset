@@ -1,11 +1,13 @@
-const path = require('path')
-const webpack = require('webpack')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const path = require('path');
+const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const babelConfig = require('../babel.config.json')
+const babelConfig = require('../babel.config.json');
 
-const rootPath = path.join(__dirname, '..')
-const srcPath = path.join(rootPath, 'src')
+const rootPath = path.join(__dirname, '..');
+const srcPath = path.join(rootPath, 'src');
+
+const dotenv = require('dotenv').config();
 
 module.exports = {
   mode: JSON.stringify(process.env.NODE_ENV),
@@ -42,18 +44,6 @@ module.exports = {
         ],
       },
       {
-        test: /\.(csv)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[hash].[ext]',
-              outputPath: 'dist/assets',
-            },
-          },
-        ],
-      },
-      {
         test: /\.(sa|sc|c)ss$/,
         use: [
           {
@@ -73,9 +63,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-      },
+      'process.env': JSON.stringify(dotenv.parsed),
     }),
   ],
-}
+};

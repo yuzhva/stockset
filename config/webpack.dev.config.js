@@ -1,13 +1,14 @@
-const path = require('path')
+const path = require('path');
 
-const merge = require('webpack-merge')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const merge = require('webpack-merge');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const commonConfig = require('./common.config.js')
+const commonConfig = require('./common.config.js');
+const proxyConfig = require('./proxy');
 
-const rootPath = path.join(__dirname, '..')
-const srcPath = path.join(rootPath, 'src')
+const rootPath = path.join(__dirname, '..');
+const srcPath = path.join(rootPath, 'src');
 
 module.exports = merge(commonConfig, {
   entry: [
@@ -23,6 +24,7 @@ module.exports = merge(commonConfig, {
     port: process.env.PORT || 8080,
     contentBase: srcPath,
     historyApiFallback: true,
+    proxy: proxyConfig,
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -32,4 +34,4 @@ module.exports = merge(commonConfig, {
       filename: 'dist/styles.css',
     }),
   ],
-})
+});
