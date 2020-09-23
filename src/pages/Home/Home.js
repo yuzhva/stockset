@@ -12,16 +12,17 @@ import { syncSmaValuesWithStockDate } from './utils';
 // import { useTiingoAPI } from './tiingoAPI';
 import { useIBAPI, postSymbolSearch } from './ibAPI';
 
-import { BAR_TYPE } from './constants';
+import { PERIOD_TYPE, BAR_TYPE } from './constants';
 
 const INSTANT_FORM_DEFAULT_VALUE = {
   // Tiingo API
   // ticker: 'spy',
 
-  period: '3',
+  periodSize: '1',
+  periodType: PERIOD_TYPE.M,
 
-  barSize: '1',
-  barType: BAR_TYPE.W,
+  barSize: '4',
+  barType: BAR_TYPE.H,
 };
 
 const SMA_PERIOD_MIN = 8;
@@ -50,7 +51,7 @@ const Home = () => {
   //   refreshStockData({
   //     ticker: debounceFormValue.ticker,
 
-  //     period: debounceFormValue.period,
+  //     period: debounceFormValue.periodSize,
 
   //     barSize: debounceFormValue.barSize,
   //     barType: debounceFormValue.barType,
@@ -61,7 +62,7 @@ const Home = () => {
   React.useEffect(() => {
     refreshStockData({
       conid: debounceFormValue.conid,
-      period: `${debounceFormValue.period}m`, // TODO: replace with inside API logic
+      period: `${debounceFormValue.periodSize}${debounceFormValue.periodType}`,
       bar: `${debounceFormValue.barSize}${debounceFormValue.barType}`,
     });
   }, [debounceFormValue]);
@@ -212,23 +213,52 @@ const Home = () => {
           />
         </label>
         */}
-
-        <label htmlFor="period">
-          period:
+        {/*
+        <label htmlFor="periodSize">
+          period size:
+          <input
+            id="periodSize"
+            name="periodSize"
+            type="number"
+            max={180}
+            value={instantFormValue.periodSize}
+            onChange={handleInstantFormChange}
+          />
+        </label>
+        */}
+        <label htmlFor="periodSize">
+          period size:
           <select
-            name="period"
-            id="period"
-            defaultValue={INSTANT_FORM_DEFAULT_VALUE.period}
+            name="periodSize"
+            id="periodSize"
+            defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodSize}
             onChange={handleInstantFormChange}
           >
-            <option value="180">15 year | 180 m</option>
-            <option value="120">10 year | 120 m</option>
-            <option value="60">5 year | 60m</option>
-            <option value="36">3 year | 36m</option>
-            <option value="12">1 year | 12m</option>
-            <option value="6">6 month | 6m</option>
-            <option value="3">1 quarter | 3m</option>
-            <option value="1">1 month | 1m</option>
+            <option value="15">15 | y</option>
+            <option value="10">10 | y</option>
+            <option value="6">6 | 0.5y</option>
+
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+        </label>
+        <label htmlFor="periodType">
+          period type:
+          <select
+            name="periodType"
+            id="periodType"
+            defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodType}
+            onChange={handleInstantFormChange}
+          >
+            <option value={PERIOD_TYPE.Y}>{PERIOD_TYPE.Y}</option>
+            <option value={PERIOD_TYPE.M}>{PERIOD_TYPE.M}</option>
+            <option value={PERIOD_TYPE.W}>{PERIOD_TYPE.W}</option>
+            <option value={PERIOD_TYPE.D}>{PERIOD_TYPE.D}</option>
+            <option value={PERIOD_TYPE.H}>{PERIOD_TYPE.H}</option>
+            <option value={PERIOD_TYPE.MIN}>{PERIOD_TYPE.MIN}</option>
           </select>
         </label>
         {/*
