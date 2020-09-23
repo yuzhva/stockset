@@ -52,11 +52,9 @@ export const useIBAPI = () => {
   const [stockData, setStockData] = React.useState();
 
   const refreshStockData = React.useCallback(async (params) => {
-    // if (!params.conid) return false;
+    if (!params.conid) return false;
 
-    const resAsJson = await refreshIBStockData(params, {
-      isRealData: false,
-    });
+    const resAsJson = await refreshIBStockData(params);
     const nextStockData = prepareIBData(resAsJson.data);
     setStockData(nextStockData);
 

@@ -9,7 +9,7 @@ import CandlestickChart from './CandlestickChart';
 import { createStrategyActions, calculateProfitability } from './strategy';
 import { syncSmaValuesWithStockDate } from './utils';
 
-// import { useTiingoAPI } from './tiingoAPI';
+import { useTiingoAPI } from './tiingoAPI';
 import { useIBAPI, postSymbolSearch } from './ibAPI';
 
 import { PERIOD_TYPE, BAR_TYPE } from './constants';
@@ -51,7 +51,8 @@ const Home = () => {
   //   refreshStockData({
   //     ticker: debounceFormValue.ticker,
 
-  //     period: debounceFormValue.periodSize,
+  //     periodSize: debounceFormValue.periodSize,
+  //     periodType: debounceFormValue.periodType,
 
   //     barSize: debounceFormValue.barSize,
   //     barType: debounceFormValue.barType,

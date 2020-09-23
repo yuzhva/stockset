@@ -1,7 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 
-import { BAR_TYPE } from './constants';
+import { DATE_SUBTRACTOR_BY_PERIOD_TYPE, BAR_TYPE } from './constants';
 import resAsJsonTmp from './tiingoResAsJson.json';
 
 const API_ENDPOINT_BY_KEY = {
@@ -20,13 +20,12 @@ const TIINGO_BAR_TYPE = {
 };
 
 const refreshTiingoStockData = (
-  { ticker, period, barSize, barType },
+  { ticker, periodSize, periodType, barSize, barType },
   { isRealData = true } = {}
 ) => {
-  // NOTE: start date 2x larger to calculate MA
-  const startDateStamp = new Date().setMonth(
-    new Date().getMonth() - Number(period) * 2
-  );
+  const dateSubtractor = DATE_SUBTRACTOR_BY_PERIOD_TYPE[periodType];
+
+  const startDateStamp = dateSubtractor(periodSize);
   const startDate = new Date(startDateStamp).toISOString().slice(0, 10);
 
   const isIntraDay = [BAR_TYPE.MIN, BAR_TYPE.H].includes(barType);
