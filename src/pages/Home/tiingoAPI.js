@@ -1,7 +1,8 @@
 import React from 'react';
 import * as d3 from 'd3';
 
-import resAsJsonTmp from './resAsJson.json';
+import { BAR_TYPE } from './constants';
+import resAsJsonTmp from './tiingoResAsJson.json';
 
 const API_ENDPOINT_BY_KEY = {
   END_OF_DAY:
@@ -10,29 +11,43 @@ const API_ENDPOINT_BY_KEY = {
     '/api-tiingo/iex/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%',
 };
 
-const API_ENDPOINT_BY_TIME_FRAME = {
-  monthly: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  weekly: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  daily: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  '4hour': API_ENDPOINT_BY_KEY.INTRADAY,
-  '1hour': API_ENDPOINT_BY_KEY.INTRADAY,
-  '15min': API_ENDPOINT_BY_KEY.INTRADAY,
-  '1min': API_ENDPOINT_BY_KEY.INTRADAY,
+const TIINGO_BAR_TYPE = {
+  [BAR_TYPE.M]: 'monthly',
+  [BAR_TYPE.W]: 'weekly',
+  [BAR_TYPE.D]: 'daily',
+  [BAR_TYPE.H]: 'hour',
+  [BAR_TYPE.MIN]: 'min',
 };
 
 const refreshTiingoStockData = (
-  { ticker, startDate, timeFrame },
+  { ticker, period, barSize, barType },
   { isRealData = true } = {}
 ) => {
-  const apiEndPoint = API_ENDPOINT_BY_TIME_FRAME[timeFrame]
+  // NOTE: start date 2x larger to calculate MA
+  const startDateStamp = new Date().setMonth(
+    new Date().getMonth() - Number(period) * 2
+  );
+  const startDate = new Date(startDateStamp).toISOString().slice(0, 10);
+
+  const isIntraDay = [BAR_TYPE.MIN, BAR_TYPE.H].includes(barType);
+
+  const timeFrame = isIntraDay
+    ? `${barSize}${TIINGO_BAR_TYPE[barType]}`
+    : TIINGO_BAR_TYPE[barType];
+
+  const apiEndPoint = isIntraDay
+    ? API_ENDPOINT_BY_KEY.INTRADAY
+    : API_ENDPOINT_BY_KEY.END_OF_DAY;
+
+  const requestUrl = apiEndPoint
     .replace('%ticker%', ticker)
-    .replace('%startDate%', startDate.slice(0, 10))
+    .replace('%startDate%', startDate)
     .replace('%timeFrame%', timeFrame)
     .replace('%tiingoToken%', process.env.TIINGO_TOKEN);
 
   return new Promise((resolve, reject) => {
     if (isRealData) {
-      fetch(apiEndPoint)
+      fetch(requestUrl)
         .then((res) => res.json())
         .then((resAsJson) => {
           console.warn('resAsJson', resAsJson);
@@ -46,8 +61,8 @@ const refreshTiingoStockData = (
 };
 
 // React hook
-export const prepareTiingoData = (resAsJson) =>
-  resAsJson.map((candleStick) => ({
+export const prepareTiingoData = (candleSticks) =>
+  candleSticks.map((candleStick) => ({
     TIMESTAMP: d3.isoParse(candleStick.date),
     LOW: candleStick.low,
     HIGH: candleStick.high,
