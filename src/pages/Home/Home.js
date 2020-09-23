@@ -1,5 +1,4 @@
 import React from 'react';
-import * as d3 from 'd3';
 import AsyncSelect from 'react-select/async';
 import { SMA } from 'technicalindicators';
 
@@ -56,16 +55,6 @@ const Home = () => {
   const [stockData, refreshStockData] = useIBAPI();
 
   const [mostProfitableSma, setMostProfitableSma] = React.useState('');
-
-  const { calculationsStartDate } = React.useMemo(() => {
-    const dateStamp = new Date().setMonth(
-      new Date().getMonth() - Number(instantFormValue.period)
-    );
-
-    return {
-      calculationsStartDate: new Date(dateStamp).toISOString(),
-    };
-  }, [instantFormValue.period]);
 
   const smaMaxPeriod = React.useMemo(
     () =>
@@ -156,24 +145,13 @@ const Home = () => {
     // Step 2: calculate SMA actions and their profitability
     const actionsBySmaPeriod = {};
     const profitabilityBySmaPeriod = {};
-    const stockDataForCalculation = stockData.slice(
-      stockData.findIndex(
-        (sD) => sD.TIMESTAMP >= d3.isoParse(calculationsStartDate)
-      )
-    );
 
     Object.keys(smaByPeriod).forEach((currentSmaPeriod) => {
       const currentSma = smaByPeriod[currentSmaPeriod];
 
-      const smaForCalculation = currentSma.slice(
-        currentSma.findIndex(
-          (sV) => sV.TIMESTAMP >= d3.isoParse(calculationsStartDate)
-        )
-      );
-
       actionsBySmaPeriod[currentSmaPeriod] = createStrategyActions(
-        stockDataForCalculation,
-        smaForCalculation
+        stockData,
+        currentSma
       );
 
       profitabilityBySmaPeriod[currentSmaPeriod] = calculateProfitability(
@@ -206,7 +184,7 @@ const Home = () => {
       'actions profit',
       profitabilityBySmaPeriod[mostProfitableSmaPeriod]
     );
-  }, [stockData, calculationsStartDate]);
+  }, [stockData]);
 
   const promiseSymbolOptions = useCallbackDebounce(
     (cbRef, inputValue, callback) => {
@@ -328,7 +306,6 @@ const Home = () => {
       </div>
 
       <CandlestickChart
-        calculationsStartDate={calculationsStartDate}
         fetchedStockData={stockData}
         smaPeriod={mostProfitableSma}
         smaValues={smaValues}

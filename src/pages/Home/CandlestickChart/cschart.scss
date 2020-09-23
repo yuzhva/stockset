@@ -33,7 +33,6 @@
 #chart1 .bands .hoved { fill: darkgrey !important; fill-opacity: .6; }
 #chart1 .bands .downtrend { fill: transparentize(crimson, 0.75); fill-opacity: .6; }
 #chart1 .bands .uptrend { fill: transparentize(green, 0.75); fill-opacity: .6; }
-#chart1 .bands .period__start { fill: crimson ; fill-opacity: .6; }
 #chart1 .sticks rect { pointer-events: none; shape-rendering: crispEdges; }
 #chart1 .sticks .rise, #chart1 .candles .rise { fill: lightgrey; }
 #chart1 .sticks .fall, #chart1 .candles .fall { fill: turquoise; }

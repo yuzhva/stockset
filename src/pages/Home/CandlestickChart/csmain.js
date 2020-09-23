@@ -43,15 +43,8 @@ function hoverAll() {
     });
 }
 
-function displayCS(
-  calculationsStartDate,
-  fetchedStockData,
-  smaPeriod,
-  smaValues,
-  actionsProfit
-) {
+function displayCS(fetchedStockData, smaPeriod, smaValues, actionsProfit) {
   const chart = cschart(
-    calculationsStartDate,
     fetchedStockData,
     smaPeriod,
     smaValues,
@@ -65,37 +58,18 @@ function displayCS(
   hoverAll();
 }
 
-function displayAll(
-  calculationsStartDate,
-  fetchedStockData,
-  smaPeriod,
-  smaValues,
-  actionsProfit
-) {
-  displayCS(
-    calculationsStartDate,
-    fetchedStockData,
-    smaPeriod,
-    smaValues,
-    actionsProfit
-  );
+function displayAll(fetchedStockData, smaPeriod, smaValues, actionsProfit) {
+  displayCS(fetchedStockData, smaPeriod, smaValues, actionsProfit);
   displayGen(fetchedStockData.length - 1);
 }
 
 // https://medium.com/@anilnairxyz/candlestick-chart-using-d3-a7f978578cd7
 export function drawD3Chart(
-  calculationsStartDate,
   fetchedStockData,
   smaPeriod,
   smaValues,
   actionsProfit
 ) {
   genData = fetchedStockData;
-  displayAll(
-    calculationsStartDate,
-    fetchedStockData,
-    smaPeriod,
-    smaValues,
-    actionsProfit
-  );
+  displayAll(fetchedStockData, smaPeriod, smaValues, actionsProfit);
 }

@@ -3,7 +3,6 @@ import React from 'react';
 import { drawD3Chart } from './csmain';
 
 const CandlestickChart = ({
-  calculationsStartDate,
   fetchedStockData,
   smaPeriod,
   smaValues,
@@ -11,13 +10,7 @@ const CandlestickChart = ({
 }) => {
   React.useEffect(() => {
     if (fetchedStockData)
-      drawD3Chart(
-        calculationsStartDate,
-        fetchedStockData,
-        smaPeriod,
-        smaValues,
-        actionsProfit
-      );
+      drawD3Chart(fetchedStockData, smaPeriod, smaValues, actionsProfit);
   }, [fetchedStockData, smaPeriod, smaValues, actionsProfit]);
 
   return (
