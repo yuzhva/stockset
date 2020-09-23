@@ -9,7 +9,7 @@ import CandlestickChart from './CandlestickChart';
 import { createStrategyActions, calculateProfitability } from './strategy';
 import { syncSmaValuesWithStockDate } from './utils';
 
-import resAsJsonTmp from './resAsJson.json';
+import { useTiingoAPI } from './tiingoAPI';
 
 const FORM_API_RELATED_DEFAULT_VALUE = {
   ticker: 'spy',
@@ -34,34 +34,7 @@ const SMA_PERIOD_BY_TIME_FRAME = {
   weekly: 52,
 };
 
-const API_ENDPOINT_BY_KEY = {
-  END_OF_DAY:
-    '/api-tiingo/tiingo/daily/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%',
-  INTRADAY:
-    '/api-tiingo/iex/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%',
-};
-
-const API_ENDPOINT_BY_TIME_FRAME = {
-  monthly: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  weekly: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  daily: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  '4hour': API_ENDPOINT_BY_KEY.INTRADAY,
-  '1hour': API_ENDPOINT_BY_KEY.INTRADAY,
-  '15min': API_ENDPOINT_BY_KEY.INTRADAY,
-  '1min': API_ENDPOINT_BY_KEY.INTRADAY,
-};
-
-const prepareTiingoData = (resAsJson) =>
-  resAsJson.map((candleStick) => ({
-    TIMESTAMP: d3.isoParse(candleStick.date),
-    LOW: candleStick.low,
-    HIGH: candleStick.high,
-    OPEN: candleStick.open,
-    CLOSE: candleStick.close,
-  }));
-
 const Home = () => {
-  const [stockData, setStockData] = React.useState();
   const [smaValues, setSmaValues] = React.useState();
   const [actionsProfit, setActionsProfit] = React.useState();
 
@@ -71,6 +44,9 @@ const Home = () => {
   const [inputChartRelatedValue, setInputChartRelatedValue] = React.useState(
     FORM_CHART_RELATED_DEFAULT_VALUE
   );
+
+  const [stockData, refreshStockData] = useTiingoAPI();
+
   const [mostProfitableSma, setMostProfitableSma] = React.useState('');
 
   const { calculationsStartDate, fetchDataStartDate } = React.useMemo(() => {
@@ -97,23 +73,11 @@ const Home = () => {
   );
 
   React.useEffect(() => {
-    const apiEndPoint = API_ENDPOINT_BY_TIME_FRAME[
-      inputApiRelatedValue.timeFrame
-    ]
-      .replace('%ticker%', inputApiRelatedValue.ticker)
-      .replace('%startDate%', fetchDataStartDate.slice(0, 10))
-      .replace('%timeFrame%', inputApiRelatedValue.timeFrame)
-      .replace('%tiingoToken%', process.env.TIINGO_TOKEN);
-
-    // fetch(apiEndPoint)
-    //   .then((res) => res.json())
-    //   .then((resAsJson) => {
-    //     console.warn('resAsJson', resAsJson);
-    //     const nextStockData = prepareTiingoData(resAsJson);
-    //     setStockData(nextStockData);
-    //   });
-    const nextStockData = prepareTiingoData(resAsJsonTmp);
-    setStockData(nextStockData);
+    refreshStockData({
+      ticker: inputApiRelatedValue.ticker,
+      startDate: fetchDataStartDate.slice(0, 10),
+      timeFrame: inputApiRelatedValue.timeFrame,
+    });
   }, [inputApiRelatedValue.ticker, inputApiRelatedValue.timeFrame]);
 
   const handleInputApiRelatedChange = React.useCallback(
