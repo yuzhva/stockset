@@ -191,14 +191,17 @@ const Home = () => {
   return (
     <div>
       <div className="control">
-        <AsyncSelect
-          name="conid"
-          loadOptions={promiseSymbolOptions}
-          onChange={handleSelectChange}
-          cacheOptions
-          defaultOptions
-          isClearable
-        />
+        <div className="control__select">
+          <p>ticker:</p>
+          <AsyncSelect
+            name="conid"
+            loadOptions={promiseSymbolOptions}
+            onChange={handleSelectChange}
+            cacheOptions
+            defaultOptions
+            isClearable
+          />
+        </div>
 
         {/* // Tiingo API */}
         {/*
@@ -227,82 +230,88 @@ const Home = () => {
           />
         </label>
         */}
-        <label htmlFor="periodSize">
-          period size:
-          <select
-            name="periodSize"
-            id="periodSize"
-            defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodSize}
-            onChange={handleInstantFormChange}
-          >
-            <option value="15">15 | y</option>
-            <option value="10">10 | y</option>
-            <option value="6">6 | 0.5y</option>
+        <div>
+          <p>period:</p>
+          <label htmlFor="periodSize">
+            &nbsp;size&nbsp;
+            <select
+              name="periodSize"
+              id="periodSize"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodSize}
+              onChange={handleInstantFormChange}
+            >
+              <option value="15">15 | y</option>
+              <option value="10">10 | y</option>
+              <option value="6">6 | 0.5y</option>
 
-            <option value="5">5</option>
-            <option value="4">4</option>
-            <option value="3">3</option>
-            <option value="2">2</option>
-            <option value="1">1</option>
-          </select>
-        </label>
-        <label htmlFor="periodType">
-          period type:
-          <select
-            name="periodType"
-            id="periodType"
-            defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodType}
-            onChange={handleInstantFormChange}
-          >
-            <option value={PERIOD_TYPE.Y}>{PERIOD_TYPE.Y}</option>
-            <option value={PERIOD_TYPE.M}>{PERIOD_TYPE.M}</option>
-            <option value={PERIOD_TYPE.W}>{PERIOD_TYPE.W}</option>
-            <option value={PERIOD_TYPE.D}>{PERIOD_TYPE.D}</option>
-            <option value={PERIOD_TYPE.H}>{PERIOD_TYPE.H}</option>
-            <option value={PERIOD_TYPE.MIN}>{PERIOD_TYPE.MIN}</option>
-          </select>
-        </label>
-        {/*
-        <label htmlFor="barSize">
-          bar size:
-          <input
-            id="barSize"
-            name="barSize"
-            type="number"
-            max={30}
-            value={instantFormValue.barSize}
-            onChange={handleInstantFormChange}
-          />
-        </label>
-        */}
-        <label htmlFor="barSize">
-          bar size:
-          <select
-            name="barSize"
-            id="barSize"
-            defaultValue={INSTANT_FORM_DEFAULT_VALUE.barSize}
-            onChange={handleInstantFormChange}
-          >
-            <option value="15">15</option>
-            <option value="4">4</option>
-            <option value="1">1</option>
-          </select>
-        </label>
-        <label htmlFor="barType">
-          bar type:
-          <select
-            name="barType"
-            id="barType"
-            defaultValue={INSTANT_FORM_DEFAULT_VALUE.barType}
-            onChange={handleInstantFormChange}
-          >
-            <option value={BAR_TYPE.M}>{BAR_TYPE.M}</option>
-            <option value={BAR_TYPE.W}>{BAR_TYPE.W}</option>
-            <option value={BAR_TYPE.D}>{BAR_TYPE.D}</option>
-            <option value={BAR_TYPE.H}>{BAR_TYPE.H}</option>
-            <option value={BAR_TYPE.MIN}>{BAR_TYPE.MIN}</option>
-          </select>
-        </label>
+              <option value="5">5</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+          </label>
+          <label htmlFor="periodType">
+            &nbsp;type&nbsp;
+            <select
+              name="periodType"
+              id="periodType"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodType}
+              onChange={handleInstantFormChange}
+            >
+              <option value={PERIOD_TYPE.Y}>{PERIOD_TYPE.Y}</option>
+              <option value={PERIOD_TYPE.M}>{PERIOD_TYPE.M}</option>
+              <option value={PERIOD_TYPE.W}>{PERIOD_TYPE.W}</option>
+              <option value={PERIOD_TYPE.D}>{PERIOD_TYPE.D}</option>
+              <option value={PERIOD_TYPE.H}>{PERIOD_TYPE.H}</option>
+              <option value={PERIOD_TYPE.MIN}>{PERIOD_TYPE.MIN}</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <p>bar:</p>
+          {/*
+          <label htmlFor="barSize">
+            bar size:
+            <input
+              id="barSize"
+              name="barSize"
+              type="number"
+              max={30}
+              value={instantFormValue.barSize}
+              onChange={handleInstantFormChange}
+            />
+          </label>
+          */}
+          <label htmlFor="barSize">
+            &nbsp;size&nbsp;
+            <select
+              name="barSize"
+              id="barSize"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.barSize}
+              onChange={handleInstantFormChange}
+            >
+              <option value="15">15</option>
+              <option value="4">4</option>
+              <option value="1">1</option>
+            </select>
+          </label>
+          <label htmlFor="barType">
+            &nbsp;type&nbsp;
+            <select
+              name="barType"
+              id="barType"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.barType}
+              onChange={handleInstantFormChange}
+            >
+              <option value={BAR_TYPE.M}>{BAR_TYPE.M}</option>
+              <option value={BAR_TYPE.W}>{BAR_TYPE.W}</option>
+              <option value={BAR_TYPE.D}>{BAR_TYPE.D}</option>
+              <option value={BAR_TYPE.H}>{BAR_TYPE.H}</option>
+              <option value={BAR_TYPE.MIN}>{BAR_TYPE.MIN}</option>
+            </select>
+          </label>
+        </div>
         <label htmlFor="sma">
           SMA:
           <input

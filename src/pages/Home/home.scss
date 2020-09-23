@@ -1,1 +1,14 @@
 @import './CandlestickChart/cschart.scss';
+
+.control {
+  text-align: center;
+
+  > * {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  &__select {
+    min-width: 250px;
+  }
+}
