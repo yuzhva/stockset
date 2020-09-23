@@ -26,17 +26,6 @@ const INSTANT_FORM_DEFAULT_VALUE = {
 
 const SMA_PERIOD_MIN = 8;
 
-const SMA_PERIOD_BY_DATE_RANGE = {
-  '12': 365,
-  '6': 180,
-  '3': 90,
-};
-
-const SMA_PERIOD_BY_TIME_FRAME = {
-  m: 12,
-  w: 52,
-};
-
 const Home = () => {
   const [smaValues, setSmaValues] = React.useState();
   const [actionsProfit, setActionsProfit] = React.useState();
@@ -55,14 +44,6 @@ const Home = () => {
   const [stockData, refreshStockData] = useIBAPI();
 
   const [mostProfitableSma, setMostProfitableSma] = React.useState('');
-
-  const smaMaxPeriod = React.useMemo(
-    () =>
-      SMA_PERIOD_BY_TIME_FRAME[debounceFormValue.barType] ||
-      SMA_PERIOD_BY_DATE_RANGE[debounceFormValue.period] ||
-      SMA_PERIOD_BY_DATE_RANGE['12'],
-    [debounceFormValue.barType, debounceFormValue.period]
-  );
 
   // Tiingo API
   // React.useEffect(() => {
@@ -123,6 +104,7 @@ const Home = () => {
   const onBtnCalcSmaClick = React.useCallback(() => {
     const smaByPeriod = {};
     const closePrices = stockData.map((sD) => sD.CLOSE);
+    const smaMaxPeriod = Math.min(closePrices.length, 365); // days in 1 year
 
     // Step 1: calculate SMA for all periods
     for (
@@ -246,6 +228,7 @@ const Home = () => {
             <option value="12">1 year | 12m</option>
             <option value="6">6 month | 6m</option>
             <option value="3">1 quarter | 3m</option>
+            <option value="1">1 month | 1m</option>
           </select>
         </label>
         {/*
@@ -295,7 +278,6 @@ const Home = () => {
             id="sma"
             name="sma"
             type="number"
-            max={smaMaxPeriod}
             value={mostProfitableSma}
             readOnly
           />
