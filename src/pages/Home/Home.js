@@ -44,7 +44,7 @@ const Home = () => {
   // IB API
   const [stockData, refreshStockData] = useIBAPI();
 
-  const [mostProfitableSma, setMostProfitableSma] = React.useState('');
+  const [mostProfitableSma, setMostProfitableSma] = React.useState();
 
   // Tiingo API
   // React.useEffect(() => {

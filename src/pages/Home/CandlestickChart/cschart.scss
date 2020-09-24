@@ -47,9 +47,9 @@
 #chart1 .sigmabar rect { pointer-events: none; }
 #chart1 .sigmabar .hoved { fill: white; }
 
-#infobar   { width: 440px; height: 25px; float: left; padding-top: 5px; text-align: left; font-family: sans-serif; }
+#infobar   { width: 540px; height: 25px; float: left; padding-top: 5px; text-align: left; font-family: sans-serif; }
 .infohead  { width: 140px; height: 25px; margin: 0px 2px; float: left; }
-.infobox   { width: 70px; height: 30px; margin: 0px 2px; float: left; }
+.infobox   { width: 75px; height: 30px; margin: 0px 2px; float: left; }
 
 #volchart .volbar .volfill { fill: crimson; }
 #volchart .sigbar .sigfill { fill: crimson; }

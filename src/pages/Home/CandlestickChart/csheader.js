@@ -4,7 +4,7 @@ import { TIntervals, TPeriod } from './csmain';
 
 function csheader() {
   function cshrender(selection) {
-    selection.each(function (data) {
+    selection.each(function ([data, hoverSma = {}]) {
       const interval = TIntervals[TPeriod];
       const format =
         interval === 'month'
@@ -21,6 +21,7 @@ function csheader() {
       d3.select('#infohigh').text(`H ${data.HIGH}`);
       d3.select('#infolow').text(`L ${data.LOW}`);
       d3.select('#infoclose').text(`C ${data.CLOSE}`);
+      d3.select('#infosma').text(hoverSma.value && `SMA ${hoverSma.value.toFixed(2)}`);
     });
   } // cshrender
 

@@ -65,7 +65,8 @@ export const findMostProfitableSMA = (
     profitabilityBySmaPeriod[mostProfitableSmaPeriod];
 
   return {
-    mostProfitableSmaPeriod,
+    // NOTE: {currentSmaPeriod} is {obj} key
+    mostProfitableSmaPeriod: Number(mostProfitableSmaPeriod),
     mostProfitableSmaValues,
     mostProfitableActions,
     actionsProfitability,

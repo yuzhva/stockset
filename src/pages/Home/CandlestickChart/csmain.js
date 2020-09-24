@@ -16,9 +16,15 @@ export const TIntervals = {
 export const TFormat = { day: "%d %b '%y", week: "%d %b '%y", month: "%b '%y" };
 let genData;
 
+let storeSmaPeriod;
+let storeSmaValues;
+
 function displayGen(mark) {
   const header = csheader();
-  d3.select('#infobar').datum(genData.slice(mark)[0]).call(header);
+  const hoverData = genData.slice(mark)[0];
+  const smaIndex = mark - storeSmaPeriod;
+  const hoverSma = smaIndex >= 0 && storeSmaValues.slice(smaIndex)[0];
+  d3.select('#infobar').datum([hoverData, hoverSma]).call(header);
 }
 
 function hoverAll() {
@@ -76,5 +82,7 @@ export function drawD3Chart(
   actionsProfit
 ) {
   genData = fetchedStockData;
+  storeSmaPeriod = smaPeriod;
+  storeSmaValues = smaValues;
   displayAll(fetchedStockData, smaPeriod, smaValues, actionsProfit);
 }
