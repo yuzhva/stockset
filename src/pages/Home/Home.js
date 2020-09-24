@@ -6,11 +6,12 @@ import useCallbackDebounce from 'react-ui-elements/src/hooks/useCallbackDebounce
 import CandlestickChart from './CandlestickChart';
 import HistoricalInfoTable from './HistoricalInfoTable';
 
-import { createStrategyActions, calculateProfitability } from './strategy';
-import { sma } from './technical-analysis';
-import { syncSmaValuesWithStockDate } from './utils';
+import { findMostProfitableSMA } from './historical-calculations';
 
-import { useTiingoAPI } from './tiingoAPI';
+// Tiingo API
+// import { useTiingoAPI } from './tiingoAPI';
+
+// IB API
 import { useIBAPI, postSymbolSearch } from './ibAPI';
 
 import { PERIOD_TYPE, BAR_TYPE } from './constants';
@@ -25,8 +26,6 @@ const INSTANT_FORM_DEFAULT_VALUE = {
   barSize: '4',
   barType: BAR_TYPE.H,
 };
-
-const SMA_PERIOD_MIN = 8;
 
 const Home = () => {
   const [smaValues, setSmaValues] = React.useState();
@@ -106,67 +105,20 @@ const Home = () => {
   );
 
   const onBtnCalcSmaClick = React.useCallback(() => {
-    const smaByPeriod = {};
-    const closePrices = stockData.map((sD) => sD.CLOSE);
-    const smaMaxPeriod = Math.min(closePrices.length, 365); // days in 1 year
-
-    // Step 1: calculate SMA for all periods
-    for (
-      let currentSmaPeriod = SMA_PERIOD_MIN;
-      currentSmaPeriod <= smaMaxPeriod;
-      currentSmaPeriod += 1
-    ) {
-      const calculatedSmaValues = sma(currentSmaPeriod, closePrices);
-
-      smaByPeriod[currentSmaPeriod] = syncSmaValuesWithStockDate(
-        currentSmaPeriod,
-        calculatedSmaValues,
-        stockData
-      );
-    }
-
-    // Step 2: calculate SMA actions and their profitability
-    const actionsBySmaPeriod = {};
-    const profitabilityBySmaPeriod = {};
-
-    Object.keys(smaByPeriod).forEach((currentSmaPeriod) => {
-      const currentSma = smaByPeriod[currentSmaPeriod];
-
-      actionsBySmaPeriod[currentSmaPeriod] = createStrategyActions(
-        stockData,
-        currentSma
-      );
-
-      profitabilityBySmaPeriod[currentSmaPeriod] = calculateProfitability(
-        actionsBySmaPeriod[currentSmaPeriod]
-      );
-    });
-
-    // Step 3: find most profitable SMA
-    let mostProfitableSmaPeriod = 0;
-    let mostTotalChangeInPercent = 0;
-    Object.keys(profitabilityBySmaPeriod).forEach((currentSmaPeriod) => {
-      const currentProfitability = profitabilityBySmaPeriod[currentSmaPeriod];
-      const { totalChangeInPercent } = currentProfitability[
-        currentProfitability.length - 1
-      ];
-
-      if (totalChangeInPercent > mostTotalChangeInPercent) {
-        mostProfitableSmaPeriod = currentSmaPeriod;
-        mostTotalChangeInPercent = totalChangeInPercent;
-      }
-    });
+    const {
+      mostProfitableSmaPeriod,
+      mostProfitableSmaValues,
+      mostProfitableActions,
+      actionsProfitability,
+    } = findMostProfitableSMA(stockData);
 
     // Step 4: save results
     setMostProfitableSma(mostProfitableSmaPeriod);
-    setSmaValues(smaByPeriod[mostProfitableSmaPeriod]);
-    setActionsProfit(profitabilityBySmaPeriod[mostProfitableSmaPeriod]);
+    setSmaValues(mostProfitableSmaValues);
+    setActionsProfit(mostProfitableActions);
 
-    console.warn('taken actions', actionsBySmaPeriod[mostProfitableSmaPeriod]);
-    console.warn(
-      'actions profit',
-      profitabilityBySmaPeriod[mostProfitableSmaPeriod]
-    );
+    console.warn('taken actions', mostProfitableActions);
+    console.warn('actions profit', actionsProfitability);
   }, [stockData]);
 
   const promiseSymbolOptions = useCallbackDebounce(
@@ -311,20 +263,12 @@ const Home = () => {
             </select>
           </label>
         </div>
-        <label htmlFor="sma">
-          SMA:
-          <input
-            id="sma"
-            name="sma"
-            type="number"
-            value={mostProfitableSma}
-            readOnly
-          />
-        </label>
+
         <button type="button" onClick={onBtnCalcSmaClick}>
           Calc best SMA
         </button>
       </div>
+
       <CandlestickChart
         fetchedStockData={stockData}
         smaPeriod={mostProfitableSma}
