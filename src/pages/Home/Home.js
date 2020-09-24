@@ -1,12 +1,13 @@
 import React from 'react';
 import AsyncSelect from 'react-select/async';
-import { SMA } from 'technicalindicators';
 
 import useCallbackDebounce from 'react-ui-elements/src/hooks/useCallbackDebounce';
 
 import CandlestickChart from './CandlestickChart';
+import HistoricalInfoTable from './HistoricalInfoTable';
 
 import { createStrategyActions, calculateProfitability } from './strategy';
+import { sma } from './technical-analysis';
 import { syncSmaValuesWithStockDate } from './utils';
 
 import { useTiingoAPI } from './tiingoAPI';
@@ -115,10 +116,7 @@ const Home = () => {
       currentSmaPeriod <= smaMaxPeriod;
       currentSmaPeriod += 1
     ) {
-      const calculatedSmaValues = SMA.calculate({
-        period: currentSmaPeriod,
-        values: closePrices,
-      });
+      const calculatedSmaValues = sma(currentSmaPeriod, closePrices);
 
       smaByPeriod[currentSmaPeriod] = syncSmaValuesWithStockDate(
         currentSmaPeriod,
@@ -188,36 +186,6 @@ const Home = () => {
     [],
     3000
   );
-
-  const {
-    numOfUpTrend,
-    numOfDownTrend,
-    changeOfUpTrend,
-    changeOfDownTrend,
-  } = React.useMemo(() => {
-    if (mostProfitableSma) {
-      let upTrendNum = 0;
-      let downTrendNum = 0;
-
-      const lastStockData = stockData.slice(
-        Math.max(stockData.length - mostProfitableSma, 0)
-      );
-
-      lastStockData.forEach((lastTick) => {
-        if (lastTick.CLOSE > lastTick.OPEN) upTrendNum += 1;
-        if (lastTick.CLOSE < lastTick.OPEN) downTrendNum += 1;
-      });
-
-      return {
-        numOfUpTrend: upTrendNum,
-        numOfDownTrend: downTrendNum,
-        changeOfUpTrend: (upTrendNum / lastStockData.length) * 100,
-        changeOfDownTrend: (downTrendNum / lastStockData.length) * 100,
-      };
-    }
-
-    return {};
-  }, [mostProfitableSma, stockData]);
 
   return (
     <div>
@@ -363,12 +331,11 @@ const Home = () => {
         smaValues={smaValues}
         actionsProfit={actionsProfit}
       />
-      SMA: {mostProfitableSma}
-      <br />
-      Up Trend: {numOfUpTrend} - probability: {`${changeOfUpTrend || 'x'} %`}
-      <br />
-      Down Trend: {numOfDownTrend} - probability:{' '}
-      {`${changeOfDownTrend || 'x'} %`}
+
+      <HistoricalInfoTable
+        stockData={stockData}
+        mostProfitableSma={mostProfitableSma}
+      />
     </div>
   );
 };
