@@ -71,12 +71,13 @@ const Home = () => {
   // Component handlers
   const handleDebounceFormChange = useCallbackDebounce(
     ({ current }) => {
-      const refInstantFormValue = current[0];
+      const [refDebounceFormValue, refInstantFormValue] = current;
       setDebounceFormValue({
+        ...refDebounceFormValue,
         ...refInstantFormValue,
       });
     },
-    [instantFormValue],
+    [debounceFormValue, instantFormValue],
     3000
   );
 
