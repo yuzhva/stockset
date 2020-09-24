@@ -2,13 +2,13 @@ import React from 'react';
 import * as d3 from 'd3';
 
 import { DATE_SUBTRACTOR_BY_PERIOD_TYPE, BAR_TYPE } from './constants';
-import resAsJsonTmp from './tiingoResAsJson.json';
+import resAsJsonTmp from './tiingoResAsJson.spy-1y-4h.json';
 
 const API_ENDPOINT_BY_KEY = {
   END_OF_DAY:
     '/api-tiingo/tiingo/daily/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%',
   INTRADAY:
-    '/api-tiingo/iex/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%',
+    '/api-tiingo/iex/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%&columns=open,high,low,close,volume',
 };
 
 const TIINGO_BAR_TYPE = {
@@ -67,6 +67,9 @@ export const prepareTiingoData = (candleSticks) =>
     HIGH: candleStick.high,
     OPEN: candleStick.open,
     CLOSE: candleStick.close,
+    // bar chart
+    TURNOVER: candleStick.volume,
+    VOLATILITY: candleStick.volume,
   }));
 
 export const useTiingoAPI = () => {

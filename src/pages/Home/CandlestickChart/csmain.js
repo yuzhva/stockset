@@ -44,17 +44,22 @@ function hoverAll() {
 }
 
 function displayCS(fetchedStockData, smaPeriod, smaValues, actionsProfit) {
-  const chart = cschart(
+  const priceCandleChart = cschart(
     fetchedStockData,
     smaPeriod,
     smaValues,
     actionsProfit
   ).Bheight(460);
-  d3.select('#chart1').call(chart);
-  // var chart       = barchart().mname("volume").margin(320).MValue("TURNOVER");
-  // d3.select("#chart1").datum(fetchedStockData).call(chart);
-  // var chart       = barchart().mname("sigma").margin(400).MValue("VOLATILITY");
-  // d3.select("#chart1").datum(fetchedStockData).call(chart);
+  d3.select('#chart1').call(priceCandleChart);
+
+  const volumeBarChart = barchart()
+    .mname('volume')
+    .margin(320)
+    .MValue('TURNOVER');
+  d3.select('#chart1').datum(fetchedStockData).call(volumeBarChart);
+
+  const barChart = barchart().mname('sigma').margin(400).MValue('VOLATILITY');
+  d3.select('#chart1').datum(fetchedStockData).call(barChart);
   hoverAll();
 }
 

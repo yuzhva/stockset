@@ -1,7 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 
-import resAsJsonTmp from './ibResAsJson.json';
+import resAsJsonTmp from './ibResAsJson.spy-1y-4h.json';
 
 export const postSymbolSearch = (body) =>
   fetch('/api-ib/iserver/secdef/search', {
@@ -46,6 +46,9 @@ const prepareIBData = (candleSticks) =>
     HIGH: candleStick.h,
     OPEN: candleStick.o,
     CLOSE: candleStick.c,
+    // bar chart
+    TURNOVER: candleStick.v,
+    VOLATILITY: candleStick.v,
   }));
 
 export const useIBAPI = () => {

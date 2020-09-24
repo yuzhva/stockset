@@ -11,6 +11,8 @@ function barchart() {
 
   function barrender(selection) {
     selection.each(function(data) {
+      const isDataExist = Boolean(data[0][MValue]);
+      if (!isDataExist) return;
 
       var x = d3.scaleBand()
           .range([0, width]);
