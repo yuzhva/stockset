@@ -5,7 +5,6 @@ import { TFormat, TIntervals, TPeriod } from './csmain';
 const timeFormatToCompare = d3.timeFormat('%x');
 
 function cschart(
-  calculationsStartDate,
   genData,
   smaPeriod,
   smaValues
@@ -159,13 +158,6 @@ function cschart(
 
           if (!isClassNameShouldBeAttached) return null;
           return d.CLOSE < smaValues[matchingSmaIndex].value;
-        })
-        .classed('period__start', function (d) {
-          // TODO: fix the case when the {calculationsStartDate} is the weekend or does not intersects
-          return (
-            timeFormatToCompare(d3.isoParse(calculationsStartDate)) ===
-            timeFormatToCompare(d.TIMESTAMP)
-          );
         });
 
       const stick = svg

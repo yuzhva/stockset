@@ -1,5 +1,5 @@
 import React from 'react';
-import * as d3 from 'd3';
+import AsyncSelect from 'react-select/async';
 import { SMA } from 'technicalindicators';
 
 import useCallbackDebounce from 'react-ui-elements/src/hooks/useCallbackDebounce';
@@ -9,158 +9,105 @@ import CandlestickChart from './CandlestickChart';
 import { createStrategyActions, calculateProfitability } from './strategy';
 import { syncSmaValuesWithStockDate } from './utils';
 
-import resAsJsonTmp from './resAsJson.json';
+import { useTiingoAPI } from './tiingoAPI';
+import { useIBAPI, postSymbolSearch } from './ibAPI';
 
-const FORM_API_RELATED_DEFAULT_VALUE = {
-  ticker: 'spy',
-  timeFrame: '4hour',
-};
+import { PERIOD_TYPE, BAR_TYPE } from './constants';
 
-const FORM_CHART_RELATED_DEFAULT_VALUE = {
-  ticker: FORM_API_RELATED_DEFAULT_VALUE.ticker,
-  period: '12',
+const INSTANT_FORM_DEFAULT_VALUE = {
+  // Tiingo API
+  // ticker: 'spy',
+
+  periodSize: '1',
+  periodType: PERIOD_TYPE.M,
+
+  barSize: '4',
+  barType: BAR_TYPE.H,
 };
 
 const SMA_PERIOD_MIN = 8;
 
-const SMA_PERIOD_BY_DATE_RANGE = {
-  '12': 365,
-  '6': 180,
-  '3': 90,
-};
-
-const SMA_PERIOD_BY_TIME_FRAME = {
-  monthly: 12,
-  weekly: 52,
-};
-
-const API_ENDPOINT_BY_KEY = {
-  END_OF_DAY:
-    '/api-tiingo/tiingo/daily/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%',
-  INTRADAY:
-    '/api-tiingo/iex/%ticker%/prices?startDate=%startDate%&resampleFreq=%timeFrame%&token=%tiingoToken%',
-};
-
-const API_ENDPOINT_BY_TIME_FRAME = {
-  monthly: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  weekly: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  daily: API_ENDPOINT_BY_KEY.END_OF_DAY,
-  '4hour': API_ENDPOINT_BY_KEY.INTRADAY,
-  '1hour': API_ENDPOINT_BY_KEY.INTRADAY,
-  '15min': API_ENDPOINT_BY_KEY.INTRADAY,
-  '1min': API_ENDPOINT_BY_KEY.INTRADAY,
-};
-
-const prepareTiingoData = (resAsJson) =>
-  resAsJson.map((candleStick) => ({
-    TIMESTAMP: d3.isoParse(candleStick.date),
-    LOW: candleStick.low,
-    HIGH: candleStick.high,
-    OPEN: candleStick.open,
-    CLOSE: candleStick.close,
-  }));
-
 const Home = () => {
-  const [stockData, setStockData] = React.useState();
   const [smaValues, setSmaValues] = React.useState();
   const [actionsProfit, setActionsProfit] = React.useState();
 
-  const [inputApiRelatedValue, setInputApiRelatedValue] = React.useState(
-    FORM_API_RELATED_DEFAULT_VALUE
+  const [instantFormValue, setInstantFormValue] = React.useState(
+    INSTANT_FORM_DEFAULT_VALUE
   );
-  const [inputChartRelatedValue, setInputChartRelatedValue] = React.useState(
-    FORM_CHART_RELATED_DEFAULT_VALUE
-  );
+  const [debounceFormValue, setDebounceFormValue] = React.useState({
+    ...instantFormValue,
+  });
+
+  // Tiingo API
+  // const [stockData, refreshStockData] = useTiingoAPI();
+
+  // IB API
+  const [stockData, refreshStockData] = useIBAPI();
+
   const [mostProfitableSma, setMostProfitableSma] = React.useState('');
 
-  const { calculationsStartDate, fetchDataStartDate } = React.useMemo(() => {
-    const dateStamp = new Date().setMonth(
-      new Date().getMonth() - Number(inputChartRelatedValue.period)
-    );
+  // Tiingo API
+  // React.useEffect(() => {
+  //   refreshStockData({
+  //     ticker: debounceFormValue.ticker,
 
-    // NOTE: start date 2x larger to calculate MA
-    const largerDateStamp = new Date().setMonth(
-      new Date().getMonth() - Number(inputChartRelatedValue.period) * 2
-    );
-    return {
-      calculationsStartDate: new Date(dateStamp).toISOString(),
-      fetchDataStartDate: new Date(largerDateStamp).toISOString(),
-    };
-  }, [inputChartRelatedValue.period]);
+  //     periodSize: debounceFormValue.periodSize,
+  //     periodType: debounceFormValue.periodType,
 
-  const smaMaxPeriod = React.useMemo(
-    () =>
-      SMA_PERIOD_BY_TIME_FRAME[inputApiRelatedValue.timeFrame] ||
-      SMA_PERIOD_BY_DATE_RANGE[inputChartRelatedValue.period] ||
-      SMA_PERIOD_BY_DATE_RANGE['12'],
-    [inputApiRelatedValue.timeFrame, inputChartRelatedValue.period]
-  );
+  //     barSize: debounceFormValue.barSize,
+  //     barType: debounceFormValue.barType,
+  //   });
+  // }, [debounceFormValue]);
 
+  // IB API
   React.useEffect(() => {
-    const apiEndPoint = API_ENDPOINT_BY_TIME_FRAME[
-      inputApiRelatedValue.timeFrame
-    ]
-      .replace('%ticker%', inputApiRelatedValue.ticker)
-      .replace('%startDate%', fetchDataStartDate.slice(0, 10))
-      .replace('%timeFrame%', inputApiRelatedValue.timeFrame)
-      .replace('%tiingoToken%', process.env.TIINGO_TOKEN);
+    refreshStockData({
+      conid: debounceFormValue.conid,
+      period: `${debounceFormValue.periodSize}${debounceFormValue.periodType}`,
+      bar: `${debounceFormValue.barSize}${debounceFormValue.barType}`,
+    });
+  }, [debounceFormValue]);
 
-    // fetch(apiEndPoint)
-    //   .then((res) => res.json())
-    //   .then((resAsJson) => {
-    //     console.warn('resAsJson', resAsJson);
-    //     const nextStockData = prepareTiingoData(resAsJson);
-    //     setStockData(nextStockData);
-    //   });
-    const nextStockData = prepareTiingoData(resAsJsonTmp);
-    setStockData(nextStockData);
-  }, [inputApiRelatedValue.ticker, inputApiRelatedValue.timeFrame]);
-
-  const handleInputApiRelatedChange = React.useCallback(
-    (e) => {
-      setInputApiRelatedValue({
-        ...inputApiRelatedValue,
-        [e.currentTarget.name]: e.currentTarget.value,
-      });
-    },
-    [inputApiRelatedValue]
-  );
-
-  const handleInputChartRelatedChange = React.useCallback(
-    (e) => {
-      setInputChartRelatedValue({
-        ...inputChartRelatedValue,
-        [e.currentTarget.name]: e.currentTarget.value,
-      });
-    },
-    [inputChartRelatedValue]
-  );
-
-  const dbTickerApiValueChange = useCallbackDebounce(
+  // Component handlers
+  const handleDebounceFormChange = useCallbackDebounce(
     ({ current }) => {
-      const refTickerValue = current[0];
-      handleInputApiRelatedChange({
-        currentTarget: {
-          name: 'ticker',
-          value: refTickerValue,
-        },
+      const [refDebounceFormValue, refInstantFormValue] = current;
+      setDebounceFormValue({
+        ...refDebounceFormValue,
+        ...refInstantFormValue,
       });
     },
-    [inputChartRelatedValue.ticker],
+    [debounceFormValue, instantFormValue],
     3000
   );
 
-  const handleTickerChange = React.useCallback(
+  const handleInstantFormChange = React.useCallback(
     (e) => {
-      handleInputChartRelatedChange(e);
-      dbTickerApiValueChange();
+      setInstantFormValue({
+        ...instantFormValue,
+        [e.currentTarget.name]: e.currentTarget.value,
+      });
+      handleDebounceFormChange();
     },
-    [inputChartRelatedValue.ticker]
+    [instantFormValue]
+  );
+
+  const handleSelectChange = React.useCallback(
+    (selectedOption, inputProps) => {
+      if (selectedOption) {
+        setDebounceFormValue({
+          ...debounceFormValue,
+          [inputProps.name]: selectedOption.value,
+        });
+      }
+    },
+    [debounceFormValue]
   );
 
   const onBtnCalcSmaClick = React.useCallback(() => {
     const smaByPeriod = {};
     const closePrices = stockData.map((sD) => sD.CLOSE);
+    const smaMaxPeriod = Math.min(closePrices.length, 365); // days in 1 year
 
     // Step 1: calculate SMA for all periods
     for (
@@ -183,24 +130,13 @@ const Home = () => {
     // Step 2: calculate SMA actions and their profitability
     const actionsBySmaPeriod = {};
     const profitabilityBySmaPeriod = {};
-    const stockDataForCalculation = stockData.slice(
-      stockData.findIndex(
-        (sD) => sD.TIMESTAMP >= d3.isoParse(calculationsStartDate)
-      )
-    );
 
     Object.keys(smaByPeriod).forEach((currentSmaPeriod) => {
       const currentSma = smaByPeriod[currentSmaPeriod];
 
-      const smaForCalculation = currentSma.slice(
-        currentSma.findIndex(
-          (sV) => sV.TIMESTAMP >= d3.isoParse(calculationsStartDate)
-        )
-      );
-
       actionsBySmaPeriod[currentSmaPeriod] = createStrategyActions(
-        stockDataForCalculation,
-        smaForCalculation
+        stockData,
+        currentSma
       );
 
       profitabilityBySmaPeriod[currentSmaPeriod] = calculateProfitability(
@@ -233,11 +169,43 @@ const Home = () => {
       'actions profit',
       profitabilityBySmaPeriod[mostProfitableSmaPeriod]
     );
-  }, [stockData, calculationsStartDate]);
+  }, [stockData]);
+
+  const promiseSymbolOptions = useCallbackDebounce(
+    (cbRef, inputValue, callback) => {
+      if (!inputValue) return null;
+
+      return postSymbolSearch({
+        symbol: inputValue,
+      }).then((resAsJson) => {
+        const selectOptions = resAsJson.map((searchRes) => ({
+          label: `${searchRes.symbol} - ${searchRes.companyHeader}`,
+          value: searchRes.conid,
+        }));
+        callback(selectOptions);
+      });
+    },
+    [],
+    3000
+  );
 
   return (
     <div>
       <div className="control">
+        <div className="control__select">
+          <p>ticker:</p>
+          <AsyncSelect
+            name="conid"
+            loadOptions={promiseSymbolOptions}
+            onChange={handleSelectChange}
+            cacheOptions
+            defaultOptions
+            isClearable
+          />
+        </div>
+
+        {/* // Tiingo API */}
+        {/*
         <label htmlFor="ticker">
           ticker:
           <input
@@ -245,52 +213,112 @@ const Home = () => {
             name="ticker"
             type="text"
             maxLength={4}
-            value={inputChartRelatedValue.ticker}
-            onChange={handleTickerChange}
+            value={instantFormValue.ticker}
+            onChange={handleInstantFormChange}
           />
         </label>
-        <label htmlFor="period">
-          period:
-          <select
-            name="period"
-            id="period"
-            defaultValue={FORM_CHART_RELATED_DEFAULT_VALUE.period}
-            onChange={handleInputChartRelatedChange}
-          >
-            <option value="180">15 year</option>
-            <option value="120">10 year</option>
-            <option value="60">5 year</option>
-            <option value="36">3 year</option>
-            <option value="12">1 year</option>
-            <option value="6">6 month</option>
-            <option value="3">1 quarter</option>
-          </select>
+        */}
+        {/*
+        <label htmlFor="periodSize">
+          period size:
+          <input
+            id="periodSize"
+            name="periodSize"
+            type="number"
+            max={180}
+            value={instantFormValue.periodSize}
+            onChange={handleInstantFormChange}
+          />
         </label>
-        <label htmlFor="timeFrame">
-          time frame:
-          <select
-            name="timeFrame"
-            id="timeFrame"
-            defaultValue={FORM_API_RELATED_DEFAULT_VALUE.timeFrame}
-            onChange={handleInputApiRelatedChange}
-          >
-            {/* <option value="monthly">M</option> */}
-            <option value="monthly">M</option>
-            <option value="weekly">W</option>
-            <option value="daily">D</option>
-            <option value="4hour">4h</option>
-            <option value="1hour">1h</option>
-            <option value="15min">15m</option>
-            <option value="1min">1m</option>
-          </select>
-        </label>
+        */}
+        <div>
+          <p>period:</p>
+          <label htmlFor="periodSize">
+            &nbsp;size&nbsp;
+            <select
+              name="periodSize"
+              id="periodSize"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodSize}
+              onChange={handleInstantFormChange}
+            >
+              <option value="15">15 | y</option>
+              <option value="10">10 | y</option>
+              <option value="6">6 | 0.5y</option>
+
+              <option value="5">5</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+          </label>
+          <label htmlFor="periodType">
+            &nbsp;type&nbsp;
+            <select
+              name="periodType"
+              id="periodType"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.periodType}
+              onChange={handleInstantFormChange}
+            >
+              <option value={PERIOD_TYPE.Y}>{PERIOD_TYPE.Y}</option>
+              <option value={PERIOD_TYPE.M}>{PERIOD_TYPE.M}</option>
+              <option value={PERIOD_TYPE.W}>{PERIOD_TYPE.W}</option>
+              <option value={PERIOD_TYPE.D}>{PERIOD_TYPE.D}</option>
+              <option value={PERIOD_TYPE.H}>{PERIOD_TYPE.H}</option>
+              <option value={PERIOD_TYPE.MIN}>{PERIOD_TYPE.MIN}</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <p>bar:</p>
+          {/*
+          <label htmlFor="barSize">
+            bar size:
+            <input
+              id="barSize"
+              name="barSize"
+              type="number"
+              max={30}
+              value={instantFormValue.barSize}
+              onChange={handleInstantFormChange}
+            />
+          </label>
+          */}
+          <label htmlFor="barSize">
+            &nbsp;size&nbsp;
+            <select
+              name="barSize"
+              id="barSize"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.barSize}
+              onChange={handleInstantFormChange}
+            >
+              <option value="15">15</option>
+              <option value="4">4</option>
+              <option value="1">1</option>
+            </select>
+          </label>
+          <label htmlFor="barType">
+            &nbsp;type&nbsp;
+            <select
+              name="barType"
+              id="barType"
+              defaultValue={INSTANT_FORM_DEFAULT_VALUE.barType}
+              onChange={handleInstantFormChange}
+            >
+              <option value={BAR_TYPE.M}>{BAR_TYPE.M}</option>
+              <option value={BAR_TYPE.W}>{BAR_TYPE.W}</option>
+              <option value={BAR_TYPE.D}>{BAR_TYPE.D}</option>
+              <option value={BAR_TYPE.H}>{BAR_TYPE.H}</option>
+              <option value={BAR_TYPE.MIN}>{BAR_TYPE.MIN}</option>
+            </select>
+          </label>
+        </div>
         <label htmlFor="sma">
           SMA:
           <input
             id="sma"
             name="sma"
             type="number"
-            max={smaMaxPeriod}
             value={mostProfitableSma}
             readOnly
           />
@@ -301,7 +329,6 @@ const Home = () => {
       </div>
 
       <CandlestickChart
-        calculationsStartDate={calculationsStartDate}
         fetchedStockData={stockData}
         smaPeriod={mostProfitableSma}
         smaValues={smaValues}
