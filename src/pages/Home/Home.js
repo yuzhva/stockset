@@ -189,6 +189,36 @@ const Home = () => {
     3000
   );
 
+  const {
+    numOfUpTrend,
+    numOfDownTrend,
+    changeOfUpTrend,
+    changeOfDownTrend,
+  } = React.useMemo(() => {
+    if (mostProfitableSma) {
+      let upTrendNum = 0;
+      let downTrendNum = 0;
+
+      const lastStockData = stockData.slice(
+        Math.max(stockData.length - mostProfitableSma, 0)
+      );
+
+      lastStockData.forEach((lastTick) => {
+        if (lastTick.CLOSE > lastTick.OPEN) upTrendNum += 1;
+        if (lastTick.CLOSE < lastTick.OPEN) downTrendNum += 1;
+      });
+
+      return {
+        numOfUpTrend: upTrendNum,
+        numOfDownTrend: downTrendNum,
+        changeOfUpTrend: (upTrendNum / lastStockData.length) * 100,
+        changeOfDownTrend: (downTrendNum / lastStockData.length) * 100,
+      };
+    }
+
+    return {};
+  }, [mostProfitableSma, stockData]);
+
   return (
     <div>
       <div className="control">
@@ -327,13 +357,18 @@ const Home = () => {
           Calc best SMA
         </button>
       </div>
-
       <CandlestickChart
         fetchedStockData={stockData}
         smaPeriod={mostProfitableSma}
         smaValues={smaValues}
         actionsProfit={actionsProfit}
       />
+      SMA: {mostProfitableSma}
+      <br />
+      Up Trend: {numOfUpTrend} - probability: {`${changeOfUpTrend || 'x'} %`}
+      <br />
+      Down Trend: {numOfDownTrend} - probability:{' '}
+      {`${changeOfDownTrend || 'x'} %`}
     </div>
   );
 };
