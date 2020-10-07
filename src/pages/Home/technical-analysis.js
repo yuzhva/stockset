@@ -12,6 +12,6 @@ export const sma = (period, values) => {
       averageValue += values[valuesIndex];
     }
 
-    return averageValue / period;
+    return parseFloat((averageValue / period).toFixed(2));
   });
 };
