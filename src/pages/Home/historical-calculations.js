@@ -96,10 +96,18 @@ export const calcProbability = (stockData, mostProfitableSma) => {
     return {
       numOfUpTrend: upTrendNum,
       numOfDownTrend: downTrendNum,
-      percentOfUpTrend: (upTrendNum * 100) / lastStockData.length,
-      percentOfDownTrend: (downTrendNum * 100) / lastStockData.length,
-      changeOfUpTrend: (upTrendNum / lastStockData.length) * 100,
-      changeOfDownTrend: (downTrendNum / lastStockData.length) * 100,
+      percentOfUpTrend: parseFloat(
+        ((upTrendNum * 100) / lastStockData.length).toFixed(2)
+      ),
+      percentOfDownTrend: parseFloat(
+        ((downTrendNum * 100) / lastStockData.length).toFixed(2)
+      ),
+      changeOfUpTrend: parseFloat(
+        ((upTrendNum / lastStockData.length) * 100).toFixed(2)
+      ),
+      changeOfDownTrend: parseFloat(
+        ((downTrendNum / lastStockData.length) * 100).toFixed(2)
+      ),
     };
   }
 
@@ -110,19 +118,27 @@ export const calcCandleMovesInfo = (stockData, mostProfitableSmaPeriod) => {
   // Step-1: entire and open to close change
   const candleMoves = stockData.map((candle) => {
     // Step-1.1: entire change
-    const changeDown =
-      100 - parseFloat((candle.LOW * 100) / candle.OPEN).toFixed(2);
-    const changeUp =
-      100 - parseFloat((candle.HIGH * 100) / candle.OPEN).toFixed(2);
+    const changeDown = parseFloat(
+      (100 - (candle.LOW * 100) / candle.OPEN).toFixed(2)
+    );
+    const changeUp = parseFloat(
+      (100 - (candle.HIGH * 100) / candle.OPEN).toFixed(2)
+    );
 
-    const positiveChangeDown = changeDown < 0 ? changeDown * -1 : changeDown;
-    const positiveChangeUp = changeUp < 0 ? changeUp * -1 : changeUp;
+    // const positiveChangeDown = changeDown < 0 ? changeDown * -1 : changeDown;
+    // const positiveChangeUp = changeUp < 0 ? changeUp * -1 : changeUp;
 
-    const entirePercentChange = positiveChangeDown + positiveChangeUp;
+    const positiveChangeDown = Math.abs(changeDown);
+    const positiveChangeUp = Math.abs(changeUp);
+
+    const entirePercentChange = parseFloat(
+      (positiveChangeDown + positiveChangeUp).toFixed(2)
+    );
 
     // Step-1.2: open to close change
-    const openToClosePercentChange =
-      parseFloat(((candle.CLOSE * 100) / candle.OPEN).toFixed(2)) - 100;
+    const openToClosePercentChange = parseFloat(
+      ((candle.CLOSE * 100) / candle.OPEN - 100).toFixed(2)
+    );
     return {
       entirePercentChange,
       openToClosePercentChange,
@@ -296,8 +312,8 @@ export const createNextCandlesBasedOnHistoryInfo = (
 
     const nextCandlesClose =
       candleDirection === 'UP_TREND'
-        ? prevCandle.CLOSE + nextCandleMovePoints
-        : prevCandle.CLOSE - nextCandleMovePoints;
+        ? parseFloat((prevCandle.CLOSE + nextCandleMovePoints).toFixed(2))
+        : parseFloat((prevCandle.CLOSE - nextCandleMovePoints).toFixed(2));
 
     nextCandles.push({
       OPEN: prevCandle.CLOSE,

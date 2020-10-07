@@ -423,6 +423,7 @@ const Home = () => {
               <option value="40">40 | 4h*2*5 - 5d</option>
               <option value="26">26 | 15m - 1d</option>
               <option value="5">5 | 1d - 5d</option>
+              <option value="2">2 | 2w - 10d</option>
               <option value="1">1 | 1w - 5d</option>
             </select>
           </label>
