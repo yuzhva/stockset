@@ -31,7 +31,7 @@ function barchart() {
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       x.domain(data.map(function(d) { return d.TIMESTAMP; }));
-      y.domain([0, d3.max(data, function(d) { return d[MValue]; })]).nice();
+      y.domain([0, d3.max(data, function(d) { return d[MValue] || 0; })]).nice();
 
       var xtickdelta   = Math.ceil(60/(width/data.length))
       xAxis.tickValues(x.domain().filter(function(d, i) { return !((i+Math.floor(xtickdelta/2)) % xtickdelta); }));
@@ -60,9 +60,9 @@ function barchart() {
         .enter().append("rect")
           .attr("class", mname+"fill")
           .attr("x", function(d) { return x(d.TIMESTAMP) + bardelta; })
-          .attr("y", function(d) { return y(d[MValue]); })
+          .attr("y", function(d) { return y(d[MValue] || 0); })
           .attr("class", function(d, i) { return mname+i; })
-          .attr("height", function(d) { return y(0) - y(d[MValue]); })
+          .attr("height", function(d) { return y(0) - y(d[MValue] || 0); })
           .attr("width", fillwidth);
     });
   } // barrender
