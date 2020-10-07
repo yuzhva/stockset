@@ -1,3 +1,5 @@
+import { modifyDate } from './utils';
+
 export const PERIOD_TYPE = {
   Y: 'y',
   M: 'm',
@@ -9,17 +11,17 @@ export const PERIOD_TYPE = {
 
 export const DATE_SUBTRACTOR_BY_PERIOD_TYPE = {
   [PERIOD_TYPE.Y]: (periodSize) =>
-    new Date().setFullYear(new Date().getFullYear() - Number(periodSize)),
+    modifyDate(PERIOD_TYPE.Y, periodSize, 'subtract'),
   [PERIOD_TYPE.M]: (periodSize) =>
-    new Date().setMonth(new Date().getMonth() - Number(periodSize)),
+    modifyDate(PERIOD_TYPE.M, periodSize, 'subtract'),
   [PERIOD_TYPE.W]: (periodSize) =>
-    new Date().setDate(new Date().getDate() - Number(periodSize) * 7),
+    modifyDate(PERIOD_TYPE.W, periodSize, 'subtract'),
   [PERIOD_TYPE.D]: (periodSize) =>
-    new Date().setDate(new Date().getDate() - Number(periodSize)),
+    modifyDate(PERIOD_TYPE.D, periodSize, 'subtract'),
   [PERIOD_TYPE.H]: (periodSize) =>
-    new Date().setHours(new Date().getHours() - Number(periodSize)),
+    modifyDate(PERIOD_TYPE.H, periodSize, 'subtract'),
   [PERIOD_TYPE.MIN]: (periodSize) =>
-    new Date().setMinutes(new Date().getMinutes() - Number(periodSize)),
+    modifyDate(PERIOD_TYPE.MIN, periodSize, 'subtract'),
 };
 
 export const BAR_TYPE = {

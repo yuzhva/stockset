@@ -22,6 +22,7 @@ const CandlestickChart = ({
           <div id="infohigh" className="infobox" />
           <div id="infolow" className="infobox" />
           <div id="infoclose" className="infobox" />
+          <div id="infosma" className="infobox" />
         </div>
         <div id="chart1" />
       </div>

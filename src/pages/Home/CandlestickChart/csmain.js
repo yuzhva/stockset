@@ -16,9 +16,15 @@ export const TIntervals = {
 export const TFormat = { day: "%d %b '%y", week: "%d %b '%y", month: "%b '%y" };
 let genData;
 
+let storeSmaPeriod;
+let storeSmaValues;
+
 function displayGen(mark) {
   const header = csheader();
-  d3.select('#infobar').datum(genData.slice(mark)[0]).call(header);
+  const hoverData = genData.slice(mark)[0];
+  const smaIndex = mark - storeSmaPeriod;
+  const hoverSma = smaIndex >= 0 && storeSmaValues.slice(smaIndex)[0];
+  d3.select('#infobar').datum([hoverData, hoverSma]).call(header);
 }
 
 function hoverAll() {
@@ -44,17 +50,22 @@ function hoverAll() {
 }
 
 function displayCS(fetchedStockData, smaPeriod, smaValues, actionsProfit) {
-  const chart = cschart(
+  const priceCandleChart = cschart(
     fetchedStockData,
     smaPeriod,
     smaValues,
     actionsProfit
   ).Bheight(460);
-  d3.select('#chart1').call(chart);
-  // var chart       = barchart().mname("volume").margin(320).MValue("TURNOVER");
-  // d3.select("#chart1").datum(fetchedStockData).call(chart);
-  // var chart       = barchart().mname("sigma").margin(400).MValue("VOLATILITY");
-  // d3.select("#chart1").datum(fetchedStockData).call(chart);
+  d3.select('#chart1').call(priceCandleChart);
+
+  const volumeBarChart = barchart()
+    .mname('volume')
+    .margin(320)
+    .MValue('TURNOVER');
+  d3.select('#chart1').datum(fetchedStockData).call(volumeBarChart);
+
+  const barChart = barchart().mname('sigma').margin(400).MValue('VOLATILITY');
+  d3.select('#chart1').datum(fetchedStockData).call(barChart);
   hoverAll();
 }
 
@@ -71,5 +82,7 @@ export function drawD3Chart(
   actionsProfit
 ) {
   genData = fetchedStockData;
+  storeSmaPeriod = smaPeriod;
+  storeSmaValues = smaValues;
   displayAll(fetchedStockData, smaPeriod, smaValues, actionsProfit);
 }
